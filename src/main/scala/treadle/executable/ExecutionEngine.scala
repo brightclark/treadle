@@ -23,6 +23,7 @@ import firrtl.options.StageOptions
 import firrtl.options.Viewer.view
 import firrtl.{AnnotationSeq, PortKind}
 import treadle._
+import treadle.blackboxes.PlusArg
 import treadle.chronometry.{Timer, UTC}
 import treadle.utils.Render
 import treadle.vcd.VCD
@@ -477,7 +478,7 @@ object ExecutionEngine {
     val t0 = System.nanoTime()
     val stageOptions = view[StageOptions](annotationSeq)
 
-    val circuit = annotationSeq.collectFirst { case TreadleCircuitStateAnnotation(c)           => c }.get.circuit
+    val circuit = annotationSeq.collectFirst { case TreadleCircuitStateAnnotation(c) => c }.get.circuit
 
     if (annotationSeq.contains(ShowFirrtlAtLoadAnnotation)) {
       println(circuit.serialize)
@@ -490,15 +491,22 @@ object ExecutionEngine {
       writer.close()
     }
 
-    val blackBoxFactories = annotationSeq.collectFirst { case BlackBoxFactoriesAnnotation(bbf) => bbf }.getOrElse(
-      Seq.empty
-    )
+    val blackBoxFactories = annotationSeq.flatMap {
+      case BlackBoxFactoriesAnnotation(bbf) => bbf
+      case _                                => Seq.empty
+    }
     val allowCycles = annotationSeq.exists { case AllowCyclesAnnotation             => true; case _ => false }
     val prefixPrintfWithTime = annotationSeq.exists { case PrefixPrintfWithWallTime => true; case _ => false }
 
     val rollbackBuffers = annotationSeq.collectFirst { case RollBackBuffersAnnotation(rbb) => rbb }.getOrElse(
       TreadleDefaults.RollbackBuffers
     )
+    val plusArgs = annotationSeq.collectFirst { case PlusArgsAnnotation(seq) => seq }
+      .getOrElse(Seq.empty)
+      .map { s =>
+        PlusArg(s)
+      }
+
     val validIfIsRandom = annotationSeq.exists { case ValidIfIsRandomAnnotation => true; case _ => false }
     val verbose = annotationSeq.exists { case VerboseAnnotation                 => true; case _ => false }
 
@@ -524,7 +532,8 @@ object ExecutionEngine {
       scheduler,
       validIfIsRandom,
       prefixPrintfWithTime,
-      blackBoxFactories
+      blackBoxFactories,
+      plusArgs
     )
 
     timer("Build Compiled Expressions") {
