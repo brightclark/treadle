@@ -54,12 +54,7 @@ class ClockDivider2(val instanceName: String) extends ScalaBlackBox {
     Seq.empty
   }
 
-  /**
-    * Important note: The dependency of io_d on io_q makes this test work by making sure
-    * that the assignments are sorted correctly topologically.
-    * They mirror a similar pattern used on registers, necessary for treadle to be able
-    * to update the circuit in a single pass.
-    * @return
+  /** clk_out depends on clk_in
     */
   override def getDependencies: Seq[(String, Set[String])] = {
     Seq(
@@ -111,12 +106,7 @@ class ClockDivider3(val instanceName: String) extends ScalaBlackBox {
     Seq.empty
   }
 
-  /**
-    * Important note: The dependency of io_d on io_q makes this test work by making sure
-    * that the assignments are sorted correctly topologically.
-    * They mirror a similar pattern used on registers, necessary for treadle to be able
-    * to update the circuit in a single pass.
-    * @return
+  /** clk_out depends on clk_in
     */
   override def getDependencies: Seq[(String, Set[String])] = {
     Seq(

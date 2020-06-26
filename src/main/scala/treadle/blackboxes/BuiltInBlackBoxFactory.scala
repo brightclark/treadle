@@ -21,8 +21,6 @@ import treadle.{ScalaBlackBox, ScalaBlackBoxFactory}
 class BuiltInBlackBoxFactory extends ScalaBlackBoxFactory {
   override def createInstance(instanceName: String, blackBoxName: String): Option[ScalaBlackBox] = {
     blackBoxName match {
-      case "AsyncResetReg" =>
-        Some(add(new AsyncResetReg(instanceName)))
       case "ClockDivider2" =>
         Some(add(new ClockDivider2(instanceName)))
       case "ClockDivider3" =>
